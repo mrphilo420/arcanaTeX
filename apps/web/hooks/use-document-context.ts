@@ -1,0 +1,176 @@
+"use client";
+
+import { useEffect } from "react";
+import { useAui } from "@assistant-ui/store";
+import {
+  fileKindContextLabel,
+  fileKindForFile,
+  languageForFileKind,
+  type FileKind,
+} from "@/lib/file-kind";
+import { formatLeanSummaries, summarizeLeanFiles } from "@/lib/lean";
+import { useDocumentStore } from "@/stores/document-store";
+
+// Groq's on-demand tier has a modest tokens-per-minute budget. Keep the
+// implicit editor context lean and let the assistant read full files with
+// tools when it needs more detail.
+const MAX_ACTIVE_CONTEXT_CHARS = 3200;
+const MAX_MAIN_CONTEXT_CHARS = 1200;
+const MAX_LEAN_CONTEXT_CHARS = 2500;
+const MAX_FILE_LIST_CHARS = 1500;
+
+const CODE_EXECUTION_GUIDE = `Python, R, Matplotlib, and subagents are available for computational figures and TikZ work:
+- For Matplotlib charts/plots (line, scatter, bar, errorbar, histogram, boxplot, heatmap), prefer plot_matplotlib with a compact JSON spec: Python (arcana_plot.py) handles all journal sizing, palettes, fonts, gridlines, and PDF/PNG/SVG export to save tokens.
+- For custom Python simulations/ODEs or multi-panel matplotlib layouts, use run_python; arcana_plot.py is preloaded in the working directory (import arcana_plot as ap; ap.apply_journal_style("nature-single"); ...; ap.save_figure(fig, "figures/plot")) so you never write styling boilerplate.
+- Use run_r when the active file or task is R. Never send Python or R source through the LaTeX compiler. Never claim code ran before the tool returns a result.
+- Use spawn_subagents for independent parallel work, especially complex TikZ requests. Useful roles: tikz-python, tikz-r, tikz-reviewer, planner, latex-reviewer, researcher. Subagents cannot inspect the project or execute code; give each one focused context, then verify and synthesize their output yourself.
+- For a requested figure: decide whether plot_matplotlib, direct TikZ, or custom Python/R is appropriate; review the result; then insert the compiled figure or TikZ into the LaTeX file when asked.
+- Code runs in a temporary directory, not the project root. Pass any data the script needs through its files input; do not assume it can read project paths.
+- Use one code-tool call per script. If it succeeds, use the result and move on. If it fails, read stderr and fix the script; never put tool names, error messages, or pseudo-instructions into the script body.`;
+
+const PROOF_GOLF_GUIDE = `RAG and proof golf:
+- When the user asks to golf, shorten, minimize, simplify, or tighten a proof, use retrieve_context first. Retrieve the exact theorem/lemma, its statement, imports, and nearby declarations or proof text. Use read_project_file or inspect_lean_sources to verify the exact source before editing.
+- Preserve theorem statements, names, assumptions, and imports unless the user explicitly asks to change them. Golf the proof body, not the specification. For Lean, do not claim success without check_lean_candidate returning proved=true or a Lake build. For LaTeX proofs, recompile before claiming success.
+- Return changes through propose_patch, not direct writes. Explain your work in chat as you go: what you retrieved, what you are changing, why it should be shorter or clearer, and how it will be validated. Do not expose hidden chain-of-thought; provide a concise work log.
+- The patch opens a side-by-side preview with Keep and Undo. After Keep, run the matching validator: Lean build for Lean, LaTeX compile for TeX, Python/R runtime for Python/R. Python scripts may compute or validate a patch, but source application still goes through propose_patch for approval. For a full proof search, use the /prove or /mathematical-prover skill.`;
+
+function activeModeGuide(kind: FileKind, path: string): string {
+  switch (kind) {
+    case "latex":
+      return `Active mode: LaTeX (${path}). Treat this as LaTeX source. Compile-log diagnostics, LaTeX errors, and source fixes belong to LaTeX. Do not run Lean tools or treat Python/R code as LaTeX. If a figure needs computation, use run_python or run_r only for the computation and insert editable TikZ back into a .tex file when asked.`;
+    case "lean":
+      return `Active mode: Lean 4 (${path}). Treat this as a Lean 4 source file, not LaTeX. Use inspect_lean_sources, search_mathlib, check_lean_candidate, and build_lean_project for evidence. Never claim a proof is complete or kernel-checked without check_lean_candidate returning proved=true or build output. Do not run LaTeX compilation, compile-log repair, or LaTeX formatting tools on this file. Do not use run_python or run_r unless the user explicitly asks for a separate computational task.`;
+    case "python":
+      return `Active mode: Python (${path}). Treat this as Python source. Use run_python for execution and testing; do not interpret it as LaTeX and do not invoke the LaTeX compiler or LaTeX repair rules. If Python is used to generate TikZ, return an editable TikZ artifact and insert it only into a LaTeX file when asked.`;
+    case "r":
+      return `Active mode: R (${path}). Treat this as R source. Use run_r for execution and testing; do not interpret it as LaTeX and do not invoke the LaTeX compiler or LaTeX repair rules. If R is used to generate TikZ, return an editable TikZ artifact and insert it only into a LaTeX file when asked.`;
+    case "markdown":
+      return `Active mode: Markdown (${path}). Treat this as Markdown prose, not LaTeX or Lean. Do not invoke the LaTeX compiler or Lean tools. Use LaTeX only inside explicit math delimiters when the user asks for it.`;
+    case "data":
+      return `Active mode: data (${path}). Treat this as data, not source code. Use Python or R to inspect or transform it when asked; do not invoke the LaTeX compiler or Lean tools.`;
+    case "text":
+      return `Active mode: plain text (${path}). Do not assume this is LaTeX, Lean, Python, or R. Use the language-specific tools only when the user names that language or the file format is unambiguous.`;
+    default:
+      return `Active mode: file (${path}). Determine the format from its extension before choosing a compiler or runtime. Do not apply LaTeX, Lean, Python, or R rules indiscriminately.`;
+  }
+}
+
+function truncate(text: string, limit: number): string {
+  if (text.length <= limit) return text;
+  const head = Math.ceil(limit * 0.72);
+  const tail = limit - head;
+  return `${text.slice(0, head)}\n… truncated …\n${text.slice(-tail)}`;
+}
+
+function lineForOffset(text: string, offset: number): number {
+  return text.slice(0, Math.max(0, offset)).split("\n").length;
+}
+
+export function useDocumentContext() {
+  const aui = useAui();
+  const projectName = useDocumentStore((s) => s.projectName);
+  const files = useDocumentStore((s) => s.files);
+  const activeFileId = useDocumentStore((s) => s.activeFileId);
+  const mainFileId = useDocumentStore((s) => s.mainFileId);
+  const selectionRange = useDocumentStore((s) => s.selectionRange);
+
+  const activeFile = files.find((file) => file.id === activeFileId);
+  const mainFile = files.find((file) => file.id === mainFileId);
+  const content = activeFile?.content ?? "";
+  const activeKind = activeFile ? fileKindForFile(activeFile) : "other";
+  const activeLanguage = languageForFileKind(activeKind);
+  const leanSummaries = summarizeLeanFiles(files);
+  const leanContext = formatLeanSummaries(leanSummaries);
+
+  const hasSelection = selectionRange !== null;
+  const selectedText = hasSelection
+    ? content.slice(selectionRange.start, selectionRange.end)
+    : null;
+  const selectionStartLine = hasSelection
+    ? lineForOffset(content, selectionRange.start)
+    : null;
+  const selectionEndLine = hasSelection
+    ? lineForOffset(
+        content,
+        Math.max(selectionRange.start, selectionRange.end - 1),
+      )
+    : null;
+
+  useEffect(() => {
+    const selectionInfo =
+      hasSelection && selectedText
+        ? `The user has selected the following text in "${activeFile?.path ?? "document.tex"}" at ${selectionStartLine === selectionEndLine ? `line ${selectionStartLine}` : `lines ${selectionStartLine}–${selectionEndLine}`}:\n\`\`\`${activeLanguage}\n${truncate(selectedText, 4000)}\n\`\`\`\nYou can use the replace_selection tool to replace this text.`
+        : "The user has NOT selected any text. Do NOT use the replace_selection tool.";
+
+    const fileList = truncate(
+      files
+        .map((file) => {
+          const markers = [
+            file.id === mainFileId ? "main document" : null,
+            file.id === activeFileId ? "open in editor" : null,
+            fileKindForFile(file) === "latex"
+              ? null
+              : fileKindContextLabel(fileKindForFile(file)),
+          ].filter(Boolean);
+          return `- ${file.path}${markers.length ? ` (${markers.join(", ")})` : ""}`;
+        })
+        .join("\n"),
+      MAX_FILE_LIST_CHARS,
+    );
+
+    const mainFileContext =
+      mainFile && mainFile.id !== activeFileId && mainFile.content
+        ? `\nThe main document "${mainFile.path}" contains:\n\`\`\`latex\n${truncate(mainFile.content, MAX_MAIN_CONTEXT_CHARS)}\n\`\`\`\n`
+        : "";
+
+    const leanContextSection = leanSummaries.length
+      ? `\nLean 4 sources in this project:\n${truncate(leanContext, MAX_LEAN_CONTEXT_CHARS)}\n\nLean code is not LaTeX. Preserve declaration names and syntax. Use inspect_lean_sources for structured details and read_project_file for full source. Treat sorry/admit as incomplete proofs; axioms, native_decide, unsafe, and partial declarations are trust or soundness risks. Never claim a Lean proof is complete or kernel-checked without build evidence.\n`
+      : "";
+    const modeGuideSection = activeModeGuide(
+      activeKind,
+      activeFile?.path ?? "document.tex",
+    );
+    // Long guides are only sent for the file kinds that can use them. Keeping
+    // them out of a plain .tex request is most of the difference between a
+    // request that fits the default model and one the provider rejects.
+    const codeGuide = ["python", "r", "lean"].includes(activeKind)
+      ? CODE_EXECUTION_GUIDE
+      : "";
+    const proofGuide = activeKind === "lean" ? PROOF_GOLF_GUIDE : "";
+
+    return aui.modelContext().register({
+      getModelContext: () => ({
+        system: `The user is working on the project "${projectName}".
+
+${modeGuideSection}
+
+Project files (relative paths):
+${fileList}
+
+The user is currently editing "${activeFile?.path ?? "document.tex"}":
+\`\`\`${activeLanguage}\n${truncate(content, MAX_ACTIVE_CONTEXT_CHARS)}\n\`\`\`
+${mainFileContext}${leanContextSection}
+${selectionInfo}
+
+The project may contain multiple files that reference each other with \\input, \\include, \\bibliography, or \\includegraphics. Use the file list to understand the project structure and reference the current document when helping the user. If you need the full text of a large file, use read_project_file instead of assuming the truncated excerpt is complete.${codeGuide}${proofGuide}`,
+      }),
+    });
+  }, [
+    aui,
+    projectName,
+    files,
+    activeFileId,
+    mainFileId,
+    activeFile?.path,
+    content,
+    mainFile,
+    hasSelection,
+    selectedText,
+    selectionStartLine,
+    selectionEndLine,
+    activeKind,
+    activeLanguage,
+    leanContext,
+    leanSummaries.length,
+  ]);
+}

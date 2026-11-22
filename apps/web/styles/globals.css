@@ -1,0 +1,491 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--ui-sans);
+  --font-mono: var(--ui-mono);
+  --font-serif: var(--ui-serif);
+  --color-surface-dark: var(--surface-dark);
+  --color-surface-dark-elevated: var(--surface-dark-elevated);
+  --color-on-dark: var(--on-dark);
+  --color-on-dark-soft: var(--on-dark-soft);
+  --color-hairline: var(--hairline);
+  --color-pdf-canvas: var(--pdf-canvas);
+  --color-coral: var(--primary);
+  --color-teal: var(--accent-teal);
+  --color-amber: var(--accent-amber);
+  --color-sidebar-ring: var(--sidebar-ring);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar: var(--sidebar);
+  --color-chart-5: var(--chart-5);
+  --color-chart-4: var(--chart-4);
+  --color-chart-3: var(--chart-3);
+  --color-chart-2: var(--chart-2);
+  --color-chart-1: var(--chart-1);
+  --color-ring: var(--ring);
+  --color-input: var(--input);
+  --color-border: var(--border);
+  --color-destructive: var(--destructive);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-accent: var(--accent);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-muted: var(--muted);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-secondary: var(--secondary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary: var(--primary);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-popover: var(--popover);
+  --color-card-foreground: var(--card-foreground);
+  --color-card: var(--card);
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --radius-2xl: calc(var(--radius) + 8px);
+  --radius-3xl: calc(var(--radius) + 12px);
+  --radius-4xl: calc(var(--radius) + 16px);
+}
+
+:root {
+  --radius: 0.625rem;
+  --selection: rgba(204, 120, 92, 0.28);
+
+  --background: #faf9f5;
+  --foreground: #141413;
+  --card: #f5f0e8;
+  --card-foreground: #141413;
+  --popover: #fffdf9;
+  --popover-foreground: #141413;
+  --primary: #cc785c;
+  --primary-foreground: #ffffff;
+  --primary-active: #a9583e;
+  --secondary: #efe9de;
+  --secondary-foreground: #252523;
+  --muted: #f0ebe2;
+  --muted-foreground: #6c6a64;
+  --accent: #efe9de;
+  --accent-foreground: #141413;
+  --destructive: #c64545;
+  --border: #e6dfd8;
+  --input: #e6dfd8;
+  --ring: #cc785c;
+
+  --surface-dark: #181715;
+  --surface-dark-elevated: #252320;
+  --on-dark: #faf9f5;
+  --on-dark-soft: #a09d96;
+  --hairline: #e6dfd8;
+  --accent-teal: #5db8a6;
+  --accent-amber: #e8a55a;
+  --pdf-canvas: #ece5d8;
+
+  --chart-1: #cc785c;
+  --chart-2: #5db8a6;
+  --chart-3: #e8a55a;
+  --chart-4: #8e8b82;
+  --chart-5: #c64545;
+
+  --sidebar: #f5f0e8;
+  --sidebar-foreground: #252523;
+  --sidebar-primary: #cc785c;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: #efe9de;
+  --sidebar-accent-foreground: #141413;
+  --sidebar-border: #e6dfd8;
+  --sidebar-ring: #cc785c;
+}
+
+.dark {
+  --background: #181715;
+  --foreground: #faf9f5;
+  --card: #252320;
+  --card-foreground: #faf9f5;
+  --popover: #211f1c;
+  --popover-foreground: #faf9f5;
+  --primary: #cc785c;
+  --primary-foreground: #ffffff;
+  --primary-active: #a9583e;
+  --secondary: #252320;
+  --secondary-foreground: #faf9f5;
+  --muted: #1f1e1b;
+  --muted-foreground: #a09d96;
+  --accent: #252320;
+  --accent-foreground: #faf9f5;
+  --destructive: #c64545;
+  --border: rgba(250, 249, 245, 0.12);
+  --input: rgba(250, 249, 245, 0.16);
+  --ring: #cc785c;
+
+  --surface-dark: #181715;
+  --surface-dark-elevated: #252320;
+  --on-dark: #faf9f5;
+  --on-dark-soft: #a09d96;
+  --hairline: rgba(250, 249, 245, 0.12);
+  --accent-teal: #5db8a6;
+  --accent-amber: #e8a55a;
+  --pdf-canvas: #121110;
+
+  --chart-1: #cc785c;
+  --chart-2: #5db8a6;
+  --chart-3: #e8a55a;
+  --chart-4: #8e8b82;
+  --chart-5: #c64545;
+
+  --sidebar: #1f1e1b;
+  --sidebar-foreground: #faf9f5;
+  --sidebar-primary: #cc785c;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: #252320;
+  --sidebar-accent-foreground: #faf9f5;
+  --sidebar-border: rgba(250, 249, 245, 0.12);
+  --sidebar-ring: #cc785c;
+}
+
+/*
+ * Interface type scale (at the 17px comfortable root):
+ * 0.625rem 10.6px  micro badge
+ * 0.75rem  12.75px caption / micro UI
+ * 0.875rem 14.875px controls / compact body
+ * 1rem     17px    body and reading text
+ * 1.25rem  21.25px section / top-bar title
+ * 1.5rem   25.5px  card and dialog title
+ * 1.875rem 31.875px page display
+ * Ratios: 1.20, 1.17, 1.14, 1.25, 1.20, 1.25.
+ * Compact and Large scale the same ramp through the root font size.
+ */
+html {
+  --text-scale: 1;
+  --workspace-scale: 1;
+  font-size: calc(17px * var(--text-scale) * var(--workspace-scale));
+}
+
+html[data-text-scale="compact"] {
+  --text-scale: 0.8824;
+}
+
+html[data-text-scale="large"] {
+  --text-scale: 1.1176;
+}
+
+html[data-workspace="true"] {
+  /* The workspace reads denser than the library; text size controls still
+     scale the same ratio ramp on top of this. */
+  --workspace-scale: 0.9;
+}
+
+body {
+  --ui-serif: var(--font-stix-two), "STIX Two Text", Georgia, serif;
+  --ui-sans: var(--font-plex-sans), "IBM Plex Sans", system-ui, sans-serif;
+  --ui-mono: var(--font-jetbrains), "JetBrains Mono", ui-monospace, monospace;
+  --workspace-mono: var(--font-jetbrains), "JetBrains Mono", ui-monospace, monospace;
+}
+
+html[data-workspace-mono="ibm-plex"] body {
+  --workspace-mono: var(--font-ibm-plex-mono), "IBM Plex Mono", ui-monospace, monospace;
+}
+
+html[data-workspace-mono="inconsolata"] body {
+  --workspace-mono: var(--font-inconsolata), "Inconsolata", ui-monospace, monospace;
+}
+
+html[data-workspace-mono="fira"] body {
+  --workspace-mono: var(--font-fira-code), "Fira Code", ui-monospace, monospace;
+}
+
+html[data-workspace-mono="source-code-pro"] body {
+  --workspace-mono: var(--font-source-code-pro), "Source Code Pro", ui-monospace, monospace;
+}
+
+html[data-workspace-mono="system"] body,
+html[data-workspace-mono="cupertino"] body {
+  --workspace-mono: "SF Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+}
+
+[data-font-pairing="principia"] body {
+  --ui-serif: var(--font-stix-two), "STIX Two Text", Georgia, serif;
+  --ui-sans: var(--font-plex-sans), "IBM Plex Sans", system-ui, sans-serif;
+  --ui-mono: var(--font-jetbrains), "JetBrains Mono", ui-monospace, monospace;
+}
+
+[data-font-pairing="bourbaki"] body {
+  --ui-serif: var(--font-eb-garamond), "EB Garamond", Georgia, serif;
+  --ui-sans: var(--font-source-sans), "Source Sans 3", system-ui, sans-serif;
+  --ui-mono: var(--font-inconsolata), "Inconsolata", ui-monospace, monospace;
+}
+
+[data-font-pairing="annals"] body,
+[data-font-pairing="editorial"] body {
+  --ui-serif: var(--font-source-serif), "Source Serif 4", Georgia, serif;
+  --ui-sans: var(--font-inter), "Inter", system-ui, sans-serif;
+  --ui-mono: var(--font-source-code-pro), "Source Code Pro", ui-monospace, monospace;
+}
+
+[data-font-pairing="laboratory"] body,
+[data-font-pairing="technical"] body {
+  --ui-serif: var(--font-plex-serif), "IBM Plex Serif", Georgia, serif;
+  --ui-sans: var(--font-plex-sans), "IBM Plex Sans", system-ui, sans-serif;
+  --ui-mono: var(--font-ibm-plex-mono), "IBM Plex Mono", ui-monospace, monospace;
+}
+
+[data-font-pairing="seminar"] body {
+  --ui-serif: var(--font-newsreader), "Newsreader", Georgia, serif;
+  --ui-sans: var(--font-atkinson), "Atkinson Hyperlegible", system-ui, sans-serif;
+  --ui-mono: var(--font-fira-code), "Fira Code", ui-monospace, monospace;
+}
+
+[data-font-pairing="system"] body,
+[data-font-pairing="cupertino"] body {
+  --ui-serif: "New York", "Iowan Old Style", ui-serif, Georgia, serif;
+  --ui-sans: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", system-ui, sans-serif;
+  --ui-mono: "SF Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+}
+
+html[data-workspace="true"] body {
+  --ui-mono: var(--workspace-mono);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  html {
+    @apply overscroll-y-none scroll-smooth;
+  }
+  body {
+    @apply bg-background text-foreground;
+    font-feature-settings: "ss01", "cv11";
+    font-kerning: normal;
+  }
+  .cm-gutters {
+    font-variant-numeric: tabular-nums;
+  }
+  ::selection {
+    background: var(--selection);
+  }
+  [data-slot="dialog-title"],
+  [data-slot="sheet-title"] {
+    font-family: var(--ui-serif), Georgia, serif;
+    font-weight: 500;
+    letter-spacing: -0.01em;
+  }
+  [data-slot="dialog-description"],
+  [data-slot="sheet-description"] {
+    color: var(--muted-foreground);
+  }
+}
+
+/* Product chrome ------------------------------------------------------- */
+
+.zen-editor-surface {
+  transition: padding 180ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+html[data-zen-mode="true"] .zen-editor-surface,
+html[data-zen-mode="true"] .cm-editor .cm-scroller {
+  padding-inline: clamp(1.25rem, 4vw, 3.5rem);
+  padding-block: 0.75rem;
+}
+
+html[data-zen-mode="true"] .cm-editor .cm-gutters {
+  opacity: 0.55;
+  transition: opacity 180ms ease;
+}
+
+html[data-zen-mode="true"] .cm-editor:focus-within .cm-gutters:hover {
+  opacity: 0.9;
+}
+
+.cm-diagnostic-error {
+  background-color: rgba(198, 69, 69, 0.12);
+  box-shadow: inset 2px 0 0 #c64545;
+}
+
+.cm-diagnostic-warning {
+  background-color: rgba(185, 130, 47, 0.12);
+  box-shadow: inset 2px 0 0 #b9822f;
+}
+
+.cm-diagnostic-info {
+  background-color: rgba(93, 184, 166, 0.1);
+  box-shadow: inset 2px 0 0 #5db8a6;
+}
+
+.surface-dark {
+  background: var(--surface-dark);
+  color: var(--on-dark);
+}
+
+.hairline {
+  border-color: var(--hairline);
+}
+
+.paper-grid {
+  background-image:
+    linear-gradient(to right, rgba(20, 20, 19, 0.04) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(20, 20, 19, 0.04) 1px, transparent 1px);
+  background-size: 24px 24px;
+}
+
+.dark .paper-grid {
+  background-image:
+    linear-gradient(to right, rgba(250, 249, 245, 0.04) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(250, 249, 245, 0.04) 1px, transparent 1px);
+}
+
+/* PDF text interaction ------------------------------------------------- */
+
+.react-pdf__Page__textContent span {
+  cursor: pointer;
+  transition: background-color 0.15s ease;
+}
+
+.react-pdf__Page__textContent span:hover {
+  background-color: rgba(204, 120, 92, 0.22);
+  border-radius: 2px;
+}
+
+/* Scrollbars ----------------------------------------------------------- */
+
+* {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(108, 106, 100, 0.35) transparent;
+}
+
+.dark * {
+  scrollbar-color: rgba(160, 157, 150, 0.35) transparent;
+}
+
+.no-scrollbar {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+/* Markdown rendered in chat --------------------------------------------- */
+
+.aui-md {
+  color: var(--foreground);
+  font-size: 1rem;
+  line-height: 1.6;
+}
+
+.aui-md > :first-child {
+  margin-top: 0;
+}
+
+.aui-md h1,
+.aui-md h2,
+.aui-md h3,
+.aui-md h4 {
+  color: var(--foreground);
+  font-weight: 600;
+  letter-spacing: -0.015em;
+  margin: 1.1em 0 0.45em;
+}
+
+.aui-md h1 {
+  font-family: var(--font-serif);
+  font-size: 1.55em;
+}
+
+.aui-md h2 {
+  font-family: var(--font-serif);
+  font-size: 1.35em;
+}
+
+.aui-md h3 {
+  font-size: 1.1em;
+}
+
+.aui-md p {
+  margin: 0.65em 0;
+}
+
+.aui-md ul,
+.aui-md ol {
+  margin: 0.6em 0;
+  padding-left: 1.35rem;
+}
+
+.aui-md ul {
+  list-style: disc;
+}
+
+.aui-md ol {
+  list-style: decimal;
+}
+
+.aui-md li {
+  margin: 0.2em 0;
+}
+
+.aui-md blockquote {
+  border-left: 2px solid var(--primary);
+  background: color-mix(in srgb, var(--primary) 6%, transparent);
+  color: var(--muted-foreground);
+  margin: 0.8em 0;
+  padding: 0.45em 0.8em;
+}
+
+.aui-md a {
+  color: var(--primary);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.aui-md table {
+  border-collapse: collapse;
+  margin: 0.85em 0;
+  width: 100%;
+}
+
+.aui-md th,
+.aui-md td {
+  border: 1px solid var(--border);
+  padding: 0.35rem 0.5rem;
+  text-align: left;
+  vertical-align: top;
+}
+
+.aui-md th {
+  background: var(--muted);
+  font-weight: 600;
+}
+
+.aui-md pre {
+  background: var(--surface-dark);
+  border: 1px solid var(--hairline);
+  border-radius: 0.5rem;
+  color: var(--on-dark);
+  margin: 0.75em 0;
+  overflow-x: auto;
+  padding: 0.75rem;
+}
+
+.aui-md :not(pre) > code {
+  background: var(--muted);
+  border-radius: 0.25rem;
+  font-family: var(--font-mono);
+  font-size: 0.9em;
+  padding: 0.1rem 0.3rem;
+}
+
+.aui-md .katex-display {
+  margin: 0.8em 0;
+  overflow-x: auto;
+  overflow-y: hidden;
+  padding: 0.2em 0;
+}
