@@ -16,7 +16,7 @@ describe("POST /api/packages/import", () => {
         "\\documentclass{article}\n\\title{Route Tar Test}\n\\begin{document}\nHi.\n\\end{document}\n",
       );
       const tgzPath = join(dir, "bundle.tar.gz");
-      const tarRun = spawnSync("bsdtar", ["-czf", tgzPath, "-C", src, "."]);
+      const tarRun = spawnSync("tar", ["-czf", tgzPath, "-C", src, "."]);
       expect(tarRun.status).toBe(0);
 
       const tarBytes = await readFile(tgzPath);

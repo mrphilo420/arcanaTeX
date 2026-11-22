@@ -458,8 +458,9 @@ export function LatexEditor() {
   const [currentLine, setCurrentLine] = useState(1);
   const [selectionChat, setSelectionChat] =
     useState<SelectionChatTarget | null>(null);
-  const [contextMenu, setContextMenu] =
-    useState<EditorContextMenuState | null>(null);
+  const [contextMenu, setContextMenu] = useState<EditorContextMenuState | null>(
+    null,
+  );
   const [gutterWidth, setGutterWidth] = useState(0);
   const [lineHtmlCache, setLineHtmlCache] = useState<Record<number, string>>(
     {},
@@ -1162,8 +1163,7 @@ export function LatexEditor() {
             const { from, to } = view.state.selection.main;
             if (from === to) return;
             const selected = view.state.sliceDoc(from, to);
-            const coords =
-              view.coordsAtPos(to) ?? view.coordsAtPos(from);
+            const coords = view.coordsAtPos(to) ?? view.coordsAtPos(from);
             if (selected.trim() && coords) {
               setSelectionChat({
                 text: selected,

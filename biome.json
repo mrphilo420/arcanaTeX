@@ -148,6 +148,7 @@
       "!**/dist",
       "!**/node_modules",
       "!**/.next",
+      "!**/.next-recovery",
       "!**/.vercel",
       "!**/out",
       "!**/next-env.d.ts"

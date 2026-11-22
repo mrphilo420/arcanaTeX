@@ -317,6 +317,13 @@ async function extractWithFallbacks(
   archivePath: string,
   outDir: string,
 ): Promise<void> {
+  // For ZIP archives, prefer Python's zipfile with explicit realpath zip-slip
+  // checks so path traversal is blocked even when bsdtar is unavailable.
+  if (format === "zip") {
+    const pyOk = await extractZipViaPython(archivePath, outDir);
+    if (pyOk) return;
+  }
+
   // Pre-screen TOC so directory traversal entries (`../` or leading `/`) are dropped before writing
   const toc = await runCommand("bsdtar", ["-tf", archivePath]);
   const unsafeMembers =
@@ -326,11 +333,6 @@ async function extractWithFallbacks(
           .map((line) => line.trim())
           .filter(isUnsafeArchiveMember)
       : [];
-
-  if (unsafeMembers.length > 0 && format === "zip") {
-    const pyOk = await extractZipViaPython(archivePath, outDir);
-    if (pyOk) return;
-  }
 
   const excludeArgs = unsafeMembers
     .slice(0, 100)
@@ -368,32 +370,26 @@ async function extractWithFallbacks(
   }
 
   if (format === "zip") {
+    const unzipToc = await runCommand("unzip", ["-Z1", archivePath]);
+    const unsafeZipMembers =
+      unzipToc.code === 0
+        ? unzipToc.stdout
+            .split(/\r?\n/)
+            .map((line) => line.trim())
+            .filter(isUnsafeArchiveMember)
+        : [];
+    const unzipExclude =
+      unsafeZipMembers.length > 0
+        ? ["-x", ...unsafeZipMembers.slice(0, 100)]
+        : [];
     const unzipRes = await runCommand("unzip", [
       "-oq",
       archivePath,
       "-d",
       outDir,
+      ...unzipExclude,
     ]);
     if (unzipRes.code === 0) return;
-
-    const pyZip = await runCommand("python3", [
-      "-c",
-      `import os, sys, zipfile
-src, dst = sys.argv[1], os.path.realpath(sys.argv[2])
-with zipfile.ZipFile(src, "r") as zf:
-  for info in zf.infolist():
-    if info.is_dir(): continue
-    rel = os.path.normpath(info.filename.lstrip("/"))
-    if rel.startswith("..") or os.path.isabs(rel): continue
-    target = os.path.realpath(os.path.join(dst, rel))
-    if not target.startswith(dst + os.sep): continue
-    os.makedirs(os.path.dirname(target), exist_ok=True)
-    with zf.open(info, "r") as fin, open(target, "wb") as fout:
-      fout.write(fin.read())`,
-      archivePath,
-      outDir,
-    ]);
-    if (pyZip.code === 0) return;
   }
 
   if (
@@ -402,7 +398,24 @@ with zipfile.ZipFile(src, "r") as zf:
     format === "tar.bz2" ||
     format === "tar.xz"
   ) {
-    const gtar = await runCommand("tar", ["-xf", archivePath, "-C", outDir]);
+    const tarToc = await runCommand("tar", ["-tf", archivePath]);
+    const unsafeTarMembers =
+      tarToc.code === 0
+        ? tarToc.stdout
+            .split(/\r?\n/)
+            .map((line) => line.trim())
+            .filter(isUnsafeArchiveMember)
+        : [];
+    const tarExclude = unsafeTarMembers
+      .slice(0, 100)
+      .flatMap((member) => ["--exclude", member]);
+    const gtar = await runCommand("tar", [
+      ...tarExclude,
+      "-xf",
+      archivePath,
+      "-C",
+      outDir,
+    ]);
     if (gtar.code === 0) return;
   }
 

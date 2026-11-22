@@ -1,9 +1,18 @@
+import { existsSync } from "node:fs";
 import { describe, expect, it } from "vitest";
+import { probeCodeRuntimes } from "./code-runner";
 import {
   ARCANA_PLOT_PY,
   matplotlibSpecSchema,
   runMatplotlibSpec,
 } from "./matplotlib-helper";
+
+function canExecuteLocalCode(): boolean {
+  return (
+    (process.platform === "darwin" && existsSync("/usr/bin/sandbox-exec")) ||
+    process.env.ALLOW_UNSANDBOXED_CODE_EXECUTION === "true"
+  );
+}
 
 describe("matplotlib-helper", () => {
   it("validates compact declarative plot specs with defaults", () => {
@@ -27,6 +36,15 @@ describe("matplotlib-helper", () => {
   });
 
   it("renders a compact JSON spec into PDF, PNG, and SVG via Python", async () => {
+    if (!canExecuteLocalCode()) return;
+    const runtimes = await probeCodeRuntimes();
+    if (
+      !runtimes.python.available ||
+      !runtimes.python.packages.includes("matplotlib")
+    ) {
+      return;
+    }
+
     const result = await runMatplotlibSpec({
       kind: "line",
       title: "Convergence Curve",

@@ -239,7 +239,7 @@ export function registerSyncRoutes(
   app.get(
     "/sync/ws/:id",
     upgradeWebSocket(async (c) => {
-      const roomId = c.req.param("id");
+      const roomId = c.req.param("id") ?? "";
       const token = c.req.query("token") ?? null;
       const result = await getOrCreateRoom(roomId, token);
 

@@ -67,7 +67,12 @@ function MenuItem({
         accent && !disabled && "font-medium text-primary",
       )}
     >
-      <Icon className={cn("size-3.5 shrink-0", accent ? "text-primary" : "text-muted-foreground")} />
+      <Icon
+        className={cn(
+          "size-3.5 shrink-0",
+          accent ? "text-primary" : "text-muted-foreground",
+        )}
+      />
       <span className="flex-1 truncate">{label}</span>
       {shortcut && (
         <span className="ml-3 font-mono text-[0.65rem] text-muted-foreground">
@@ -125,7 +130,11 @@ export function EditorContextMenu({
   const menuWidth = 240;
   const menuHeight = 290;
   const left = clamp(menu.x, 8, Math.max(8, window.innerWidth - menuWidth - 8));
-  const top = clamp(menu.y, 8, Math.max(8, window.innerHeight - menuHeight - 8));
+  const top = clamp(
+    menu.y,
+    8,
+    Math.max(8, window.innerHeight - menuHeight - 8),
+  );
 
   return createPortal(
     <div

@@ -1,5 +1,6 @@
+import { existsSync } from "node:fs";
 import { describe, expect, it } from "vitest";
-import { runLocalCode } from "./code-runner";
+import { probeCodeRuntimes, runLocalCode } from "./code-runner";
 import {
   buildLatexFigureSnippet,
   compileFigureCode,
@@ -154,37 +155,58 @@ describe("figure-engine", () => {
     expect(pyCode).toContain('"pdf.fonttype": 42');
     expect(pyCode).toContain("3.5, 2.65");
 
-    const pyResult = await runLocalCode({
-      language: "python",
-      code: pyCode,
-    });
-    expect(pyResult.success).toBe(true);
-    expect(
-      pyResult.artifacts.some((a) => a.path === `figures/${dagPlan.slug}.pdf`),
-    ).toBe(true);
-    expect(
-      pyResult.artifacts.some((a) => a.path === `figures/${dagPlan.slug}.png`),
-    ).toBe(true);
-    expect(
-      pyResult.artifacts.some((a) => a.path === `figures/${dagPlan.slug}.svg`),
-    ).toBe(true);
-
     const rPlan = deduceFigureSpec(
       "Scatter regression with 95% confidence band in R",
       { presetId: "ieee-single", language: "r" },
     );
     const rCode = compileFigureCode(rPlan, "r");
-    const rResult = await runLocalCode({
-      language: "r",
-      code: rCode,
-    });
-    expect(rResult.success).toBe(true);
-    expect(
-      rResult.artifacts.some((a) => a.path === `figures/${rPlan.slug}.pdf`),
-    ).toBe(true);
-    expect(
-      rResult.artifacts.some((a) => a.path === `figures/${rPlan.slug}.png`),
-    ).toBe(true);
+    expect(rCode).toContain("figures/");
+
+    const canExecute =
+      (process.platform === "darwin" && existsSync("/usr/bin/sandbox-exec")) ||
+      process.env.ALLOW_UNSANDBOXED_CODE_EXECUTION === "true";
+    if (!canExecute) return;
+
+    const runtimes = await probeCodeRuntimes();
+    if (
+      runtimes.python.available &&
+      runtimes.python.packages.includes("matplotlib")
+    ) {
+      const pyResult = await runLocalCode({
+        language: "python",
+        code: pyCode,
+      });
+      expect(pyResult.success).toBe(true);
+      expect(
+        pyResult.artifacts.some(
+          (a) => a.path === `figures/${dagPlan.slug}.pdf`,
+        ),
+      ).toBe(true);
+      expect(
+        pyResult.artifacts.some(
+          (a) => a.path === `figures/${dagPlan.slug}.png`,
+        ),
+      ).toBe(true);
+      expect(
+        pyResult.artifacts.some(
+          (a) => a.path === `figures/${dagPlan.slug}.svg`,
+        ),
+      ).toBe(true);
+    }
+
+    if (runtimes.r.available) {
+      const rResult = await runLocalCode({
+        language: "r",
+        code: rCode,
+      });
+      expect(rResult.success).toBe(true);
+      expect(
+        rResult.artifacts.some((a) => a.path === `figures/${rPlan.slug}.pdf`),
+      ).toBe(true);
+      expect(
+        rResult.artifacts.some((a) => a.path === `figures/${rPlan.slug}.png`),
+      ).toBe(true);
+    }
   }, 45_000);
 
   it("builds LaTeX figure snippets and injects \\usepackage{graphicx} safely", () => {

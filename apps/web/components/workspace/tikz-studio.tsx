@@ -989,8 +989,7 @@ export function TikzStudio() {
       const panelEl = panelRef.current;
       if (
         !panelEl ||
-        (!panelEl.contains(target) &&
-          !panelEl.contains(document.activeElement))
+        (!panelEl.contains(target) && !panelEl.contains(document.activeElement))
       ) {
         return;
       }
@@ -1847,7 +1846,8 @@ export function TikzStudio() {
               TikZ Studio
             </SheetTitle>
             <SheetDescription className="mt-1 text-[0.7rem] uppercase tracking-[0.14em]">
-              Draw visually or start from a template. Code &amp; PDF update live.
+              Draw visually or start from a template. Code &amp; PDF update
+              live.
             </SheetDescription>
           </div>
           <div className="ml-auto flex flex-wrap items-center gap-1.5">
@@ -1880,9 +1880,11 @@ export function TikzStudio() {
         </SheetHeader>
 
         {rawTikzNotice && (
-          <div className="flex items-center justify-between gap-2 border-hairline border-b bg-amber-500/10 px-4 py-1.5 text-xs text-amber-800 dark:text-amber-300">
+          <div className="flex items-center justify-between gap-2 border-hairline border-b bg-amber-500/10 px-4 py-1.5 text-amber-800 text-xs dark:text-amber-300">
             <span>
-              Cursor is inside a raw <code className="font-mono">\begin{"{tikzpicture}"}</code> without Studio metadata — starting a new editable figure here.
+              Cursor is inside a raw{" "}
+              <code className="font-mono">\begin{"{tikzpicture}"}</code> without
+              Studio metadata — starting a new editable figure here.
             </span>
             <button
               type="button"
@@ -1992,11 +1994,12 @@ export function TikzStudio() {
               {figure.shapes.length === 0 && !draft && (
                 <div className="pointer-events-none absolute inset-0 z-[5] flex items-center justify-center p-4">
                   <div className="pointer-events-auto flex max-w-sm flex-col items-center gap-3 rounded-xl border border-hairline bg-background/90 p-4 text-center shadow-sm backdrop-blur-sm">
-                    <div className="text-sm font-medium text-foreground">
+                    <div className="font-medium text-foreground text-sm">
                       Start your TikZ diagram
                     </div>
-                    <p className="text-xs text-muted-foreground">
-                      Drag on the canvas with a drawing tool, or pick from 28 research &amp; statistical templates.
+                    <p className="text-muted-foreground text-xs">
+                      Drag on the canvas with a drawing tool, or pick from 28
+                      research &amp; statistical templates.
                     </p>
                     <div className="flex flex-wrap items-center justify-center gap-2">
                       <Button
@@ -2158,7 +2161,7 @@ export function TikzStudio() {
                     type="button"
                     onClick={() => setInspectorTab(tab.id)}
                     className={cn(
-                      "flex items-center justify-center gap-1.5 rounded-md px-2 py-1.5 text-xs font-medium transition-colors",
+                      "flex items-center justify-center gap-1.5 rounded-md px-2 py-1.5 font-medium text-xs transition-colors",
                       active
                         ? "bg-background text-foreground shadow-xs"
                         : "text-muted-foreground hover:text-foreground",
@@ -2219,8 +2222,9 @@ export function TikzStudio() {
                   {figure.shapes.length === 0 ? (
                     <div className="flex h-full flex-col items-center justify-center gap-2 px-6 text-center">
                       <EyeIcon className="size-5 text-muted-foreground/45" />
-                      <p className="text-xs text-muted-foreground">
-                        Draw a shape or load a template to see the compiled PDF preview here.
+                      <p className="text-muted-foreground text-xs">
+                        Draw a shape or load a template to see the compiled PDF
+                        preview here.
                       </p>
                     </div>
                   ) : previewError ? (
@@ -2275,7 +2279,7 @@ export function TikzStudio() {
                     <Button
                       variant="ghost"
                       size="sm"
-                      className="h-7 gap-1.5 px-2 text-xs text-on-dark-soft hover:bg-white/10 hover:text-on-dark"
+                      className="h-7 gap-1.5 px-2 text-on-dark-soft text-xs hover:bg-white/10 hover:text-on-dark"
                       onClick={handleCopy}
                       title="Copy code"
                     >
@@ -2298,7 +2302,8 @@ export function TikzStudio() {
                   </h3>
                   <div className="grid grid-cols-2 gap-x-2 gap-y-1.5">
                     {TIKZ_LIBRARIES.map((library) => {
-                      const checked = figure.options.libraries.includes(library);
+                      const checked =
+                        figure.options.libraries.includes(library);
                       return (
                         <label
                           key={library}
@@ -2330,535 +2335,537 @@ export function TikzStudio() {
               </div>
             ) : (
               <div className="min-h-0 flex-1 space-y-5 overflow-y-auto p-4">
-              {selectedIds.length > 1 ? (
-                <section className="space-y-3">
-                  <div className="flex items-center justify-between">
-                    <h3 className="font-medium text-[0.75rem] text-muted-foreground uppercase tracking-[0.16em]">
-                      Selection · {selectedIds.length} shapes
-                    </h3>
-                    <div className="flex items-center gap-1">
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        className="size-7"
-                        onClick={duplicateShape}
-                        title="Duplicate selection"
-                      >
-                        <CopyIcon className="size-3.5" />
-                      </Button>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        className="size-7 text-muted-foreground hover:text-destructive"
-                        onClick={deleteSelected}
-                        title="Delete selection"
-                      >
-                        <Trash2Icon className="size-3.5" />
-                      </Button>
-                    </div>
-                  </div>
-
-                  <div className="grid grid-cols-2 gap-2">
-                    <Button size="sm" onClick={groupSelected}>
-                      Group
-                    </Button>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={ungroupSelected}
-                      disabled={!selectedHasGroup}
-                    >
-                      Ungroup
-                    </Button>
-                  </div>
-
-                  <div>
-                    <div className="mb-1.5 font-medium text-[0.75rem] text-muted-foreground uppercase tracking-[0.14em]">
-                      Align
-                    </div>
-                    <div className="grid grid-cols-3 gap-1">
-                      {[
-                        ["left", "Left"],
-                        ["hcenter", "Center"],
-                        ["right", "Right"],
-                        ["top", "Top"],
-                        ["vcenter", "Middle"],
-                        ["bottom", "Bottom"],
-                      ].map(([mode, label]) => (
+                {selectedIds.length > 1 ? (
+                  <section className="space-y-3">
+                    <div className="flex items-center justify-between">
+                      <h3 className="font-medium text-[0.75rem] text-muted-foreground uppercase tracking-[0.16em]">
+                        Selection · {selectedIds.length} shapes
+                      </h3>
+                      <div className="flex items-center gap-1">
                         <Button
-                          key={mode}
+                          variant="ghost"
+                          size="icon"
+                          className="size-7"
+                          onClick={duplicateShape}
+                          title="Duplicate selection"
+                        >
+                          <CopyIcon className="size-3.5" />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="size-7 text-muted-foreground hover:text-destructive"
+                          onClick={deleteSelected}
+                          title="Delete selection"
+                        >
+                          <Trash2Icon className="size-3.5" />
+                        </Button>
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-2">
+                      <Button size="sm" onClick={groupSelected}>
+                        Group
+                      </Button>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={ungroupSelected}
+                        disabled={!selectedHasGroup}
+                      >
+                        Ungroup
+                      </Button>
+                    </div>
+
+                    <div>
+                      <div className="mb-1.5 font-medium text-[0.75rem] text-muted-foreground uppercase tracking-[0.14em]">
+                        Align
+                      </div>
+                      <div className="grid grid-cols-3 gap-1">
+                        {[
+                          ["left", "Left"],
+                          ["hcenter", "Center"],
+                          ["right", "Right"],
+                          ["top", "Top"],
+                          ["vcenter", "Middle"],
+                          ["bottom", "Bottom"],
+                        ].map(([mode, label]) => (
+                          <Button
+                            key={mode}
+                            variant="outline"
+                            size="sm"
+                            className="h-7 text-[0.75rem]"
+                            onClick={() =>
+                              alignSelected(
+                                mode as
+                                  | "left"
+                                  | "hcenter"
+                                  | "right"
+                                  | "top"
+                                  | "vcenter"
+                                  | "bottom",
+                              )
+                            }
+                          >
+                            {label}
+                          </Button>
+                        ))}
+                      </div>
+                    </div>
+
+                    <div>
+                      <div className="mb-1.5 font-medium text-[0.75rem] text-muted-foreground uppercase tracking-[0.14em]">
+                        Distribute
+                      </div>
+                      <div className="grid grid-cols-2 gap-1">
+                        <Button
                           variant="outline"
                           size="sm"
                           className="h-7 text-[0.75rem]"
-                          onClick={() =>
-                            alignSelected(
-                              mode as
-                                | "left"
-                                | "hcenter"
-                                | "right"
-                                | "top"
-                                | "vcenter"
-                                | "bottom",
-                            )
-                          }
+                          onClick={() => distributeSelected("horizontal")}
                         >
-                          {label}
+                          Horizontal
                         </Button>
-                      ))}
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="h-7 text-[0.75rem]"
+                          onClick={() => distributeSelected("vertical")}
+                        >
+                          Vertical
+                        </Button>
+                      </div>
                     </div>
-                  </div>
 
-                  <div>
-                    <div className="mb-1.5 font-medium text-[0.75rem] text-muted-foreground uppercase tracking-[0.14em]">
-                      Distribute
+                    <p className="rounded-md border border-dashed p-2 text-[0.75rem] text-muted-foreground leading-relaxed">
+                      Shift-click to add shapes, drag empty canvas to marquee
+                      select, ⌘/Ctrl+G to group, ⌘/Ctrl+Shift+G to ungroup.
+                    </p>
+                  </section>
+                ) : selected ? (
+                  <section className="space-y-3">
+                    <div className="flex items-center justify-between">
+                      <h3 className="font-medium text-[0.75rem] text-muted-foreground uppercase tracking-[0.16em]">
+                        Selection · {selected.kind}
+                      </h3>
+                      <div className="flex items-center gap-1">
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="size-7"
+                          onClick={() => moveLayer("up")}
+                          title="Bring forward"
+                        >
+                          <ChevronsUpIcon className="size-3.5" />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="size-7"
+                          onClick={() => moveLayer("down")}
+                          title="Send backward"
+                        >
+                          <ChevronsDownIcon className="size-3.5" />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="size-7"
+                          onClick={duplicateShape}
+                          title="Duplicate (⌘/Ctrl+D)"
+                        >
+                          <CopyIcon className="size-3.5" />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="size-7 text-muted-foreground hover:text-destructive"
+                          onClick={() => deleteShape(selected.id)}
+                          title="Delete"
+                        >
+                          <Trash2Icon className="size-3.5" />
+                        </Button>
+                      </div>
                     </div>
-                    <div className="grid grid-cols-2 gap-1">
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        className="h-7 text-[0.75rem]"
-                        onClick={() => distributeSelected("horizontal")}
-                      >
-                        Horizontal
-                      </Button>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        className="h-7 text-[0.75rem]"
-                        onClick={() => distributeSelected("vertical")}
-                      >
-                        Vertical
-                      </Button>
-                    </div>
-                  </div>
 
-                  <p className="rounded-md border border-dashed p-2 text-[0.75rem] text-muted-foreground leading-relaxed">
-                    Shift-click to add shapes, drag empty canvas to marquee
-                    select, ⌘/Ctrl+G to group, ⌘/Ctrl+Shift+G to ungroup.
-                  </p>
-                </section>
-              ) : selected ? (
-                <section className="space-y-3">
-                  <div className="flex items-center justify-between">
-                    <h3 className="font-medium text-[0.75rem] text-muted-foreground uppercase tracking-[0.16em]">
-                      Selection · {selected.kind}
-                    </h3>
-                    <div className="flex items-center gap-1">
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        className="size-7"
-                        onClick={() => moveLayer("up")}
-                        title="Bring forward"
-                      >
-                        <ChevronsUpIcon className="size-3.5" />
-                      </Button>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        className="size-7"
-                        onClick={() => moveLayer("down")}
-                        title="Send backward"
-                      >
-                        <ChevronsDownIcon className="size-3.5" />
-                      </Button>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        className="size-7"
-                        onClick={duplicateShape}
-                        title="Duplicate (⌘/Ctrl+D)"
-                      >
-                        <CopyIcon className="size-3.5" />
-                      </Button>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        className="size-7 text-muted-foreground hover:text-destructive"
-                        onClick={() => deleteShape(selected.id)}
-                        title="Delete"
-                      >
-                        <Trash2Icon className="size-3.5" />
-                      </Button>
-                    </div>
-                  </div>
-
-                  {selected.kind === "line" && geometry?.kind === "line" ? (
-                    <div className="grid grid-cols-2 gap-2">
-                      <NumberField
-                        label="x1"
-                        value={geometry.x1}
-                        onChange={(value) => patchSelected({ x1: value })}
-                      />
-                      <NumberField
-                        label="y1"
-                        value={geometry.y1}
-                        onChange={(value) => patchSelected({ y1: value })}
-                      />
-                      <NumberField
-                        label="x2"
-                        value={geometry.x2}
-                        onChange={(value) => patchSelected({ x2: value })}
-                      />
-                      <NumberField
-                        label="y2"
-                        value={geometry.y2}
-                        onChange={(value) => patchSelected({ y2: value })}
-                      />
-                    </div>
-                  ) : selected.kind === "text" && geometry?.kind === "text" ? (
-                    <div className="grid grid-cols-2 gap-2">
-                      <NumberField
-                        label="x"
-                        value={geometry.x}
-                        onChange={(value) => patchSelected({ x1: value })}
-                      />
-                      <NumberField
-                        label="y"
-                        value={geometry.y}
-                        onChange={(value) => patchSelected({ y1: value })}
-                      />
-                    </div>
-                  ) : geometry?.kind === "box" ? (
-                    <div className="grid grid-cols-2 gap-2">
-                      <NumberField
-                        label="x"
-                        value={geometry.x}
-                        onChange={(value) =>
-                          patchSelected({
-                            x1: value,
-                            x2: value + geometry.width,
-                          })
-                        }
-                      />
-                      <NumberField
-                        label="y"
-                        value={geometry.y}
-                        onChange={(value) =>
-                          patchSelected({
-                            y1: value,
-                            y2: value + geometry.height,
-                          })
-                        }
-                      />
-                      <NumberField
-                        label="width"
-                        value={geometry.width}
-                        min={0.25}
-                        onChange={(value) =>
-                          patchSelected({
-                            x2: geometry.x + Math.max(0.25, value),
-                          })
-                        }
-                      />
-                      <NumberField
-                        label="height"
-                        value={geometry.height}
-                        min={0.25}
-                        onChange={(value) =>
-                          patchSelected({
-                            y2: geometry.y + Math.max(0.25, value),
-                          })
-                        }
-                      />
-                    </div>
-                  ) : null}
-
-                  {selected.kind !== "line" && (
-                    <div className="grid grid-cols-2 gap-2">
-                      <NumberField
-                        label="rotation"
-                        value={selected.rotation ?? 0}
-                        step={1}
-                        min={-180}
-                        max={180}
-                        onChange={(value) =>
-                          patchSelected({
-                            rotation: clamp(value, -180, 180),
-                          })
-                        }
-                      />
-                      {selected.kind === "text" ? (
+                    {selected.kind === "line" && geometry?.kind === "line" ? (
+                      <div className="grid grid-cols-2 gap-2">
                         <NumberField
-                          label="font size"
-                          value={
-                            selected.fontSize ??
-                            labelFontSize(selected.fontScale)
-                          }
-                          step={1}
-                          min={6}
-                          max={144}
+                          label="x1"
+                          value={geometry.x1}
+                          onChange={(value) => patchSelected({ x1: value })}
+                        />
+                        <NumberField
+                          label="y1"
+                          value={geometry.y1}
+                          onChange={(value) => patchSelected({ y1: value })}
+                        />
+                        <NumberField
+                          label="x2"
+                          value={geometry.x2}
+                          onChange={(value) => patchSelected({ x2: value })}
+                        />
+                        <NumberField
+                          label="y2"
+                          value={geometry.y2}
+                          onChange={(value) => patchSelected({ y2: value })}
+                        />
+                      </div>
+                    ) : selected.kind === "text" &&
+                      geometry?.kind === "text" ? (
+                      <div className="grid grid-cols-2 gap-2">
+                        <NumberField
+                          label="x"
+                          value={geometry.x}
+                          onChange={(value) => patchSelected({ x1: value })}
+                        />
+                        <NumberField
+                          label="y"
+                          value={geometry.y}
+                          onChange={(value) => patchSelected({ y1: value })}
+                        />
+                      </div>
+                    ) : geometry?.kind === "box" ? (
+                      <div className="grid grid-cols-2 gap-2">
+                        <NumberField
+                          label="x"
+                          value={geometry.x}
                           onChange={(value) =>
                             patchSelected({
-                              fontSize: clamp(value, 6, 144),
+                              x1: value,
+                              x2: value + geometry.width,
                             })
                           }
                         />
-                      ) : (
-                        <div />
-                      )}
-                    </div>
-                  )}
+                        <NumberField
+                          label="y"
+                          value={geometry.y}
+                          onChange={(value) =>
+                            patchSelected({
+                              y1: value,
+                              y2: value + geometry.height,
+                            })
+                          }
+                        />
+                        <NumberField
+                          label="width"
+                          value={geometry.width}
+                          min={0.25}
+                          onChange={(value) =>
+                            patchSelected({
+                              x2: geometry.x + Math.max(0.25, value),
+                            })
+                          }
+                        />
+                        <NumberField
+                          label="height"
+                          value={geometry.height}
+                          min={0.25}
+                          onChange={(value) =>
+                            patchSelected({
+                              y2: geometry.y + Math.max(0.25, value),
+                            })
+                          }
+                        />
+                      </div>
+                    ) : null}
 
-                  {selected.kind === "text" ? (
-                    <Input
-                      ref={labelInputRef}
-                      value={selected.label ?? ""}
-                      onChange={(event) =>
-                        patchSelected({ label: event.target.value })
-                      }
-                      placeholder="Text or $math$"
-                      className="h-8 text-xs"
-                    />
-                  ) : (
-                    <Input
-                      ref={labelInputRef}
-                      value={selected.label ?? ""}
-                      onChange={(event) =>
-                        patchSelected({ label: event.target.value })
-                      }
-                      placeholder="Label (LaTeX allowed)"
-                      className="h-8 text-xs"
-                    />
-                  )}
+                    {selected.kind !== "line" && (
+                      <div className="grid grid-cols-2 gap-2">
+                        <NumberField
+                          label="rotation"
+                          value={selected.rotation ?? 0}
+                          step={1}
+                          min={-180}
+                          max={180}
+                          onChange={(value) =>
+                            patchSelected({
+                              rotation: clamp(value, -180, 180),
+                            })
+                          }
+                        />
+                        {selected.kind === "text" ? (
+                          <NumberField
+                            label="font size"
+                            value={
+                              selected.fontSize ??
+                              labelFontSize(selected.fontScale)
+                            }
+                            step={1}
+                            min={6}
+                            max={144}
+                            onChange={(value) =>
+                              patchSelected({
+                                fontSize: clamp(value, 6, 144),
+                              })
+                            }
+                          />
+                        ) : (
+                          <div />
+                        )}
+                      </div>
+                    )}
 
-                  <div className="grid grid-cols-2 gap-2">
-                    <div className="space-y-1">
-                      <span className="font-medium text-[0.75rem] text-muted-foreground uppercase tracking-[0.14em]">
-                        Stroke
-                      </span>
-                      <Select
-                        value={selected.stroke}
-                        onValueChange={(stroke) => patchSelected({ stroke })}
-                      >
-                        <SelectTrigger
-                          size="sm"
-                          className="h-8 w-full text-xs"
-                          aria-label="Stroke color"
-                        >
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {TIKZ_COLORS.map((color) => (
-                            <SelectItem key={color.name} value={color.name}>
-                              <span className="flex items-center gap-2">
-                                <span
-                                  className="size-2.5 shrink-0 rounded-full border border-black/15"
-                                  style={{ backgroundColor: color.value }}
-                                />
-                                <span>{color.name}</span>
-                              </span>
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </div>
-
-                    <div className="space-y-1">
-                      <span className="font-medium text-[0.75rem] text-muted-foreground uppercase tracking-[0.14em]">
-                        Fill
-                      </span>
-                      <Select
-                        value={selected.fill}
-                        onValueChange={(fill) => patchSelected({ fill })}
-                      >
-                        <SelectTrigger
-                          size="sm"
-                          className="h-8 w-full text-xs"
-                          aria-label="Fill color"
-                        >
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {TIKZ_FILLS.map((fill) => (
-                            <SelectItem key={fill.name} value={fill.name}>
-                              <span className="flex items-center gap-2">
-                                <span
-                                  className="size-2.5 shrink-0 rounded-full border border-black/15"
-                                  style={{
-                                    backgroundColor:
-                                      fill.value === "transparent"
-                                        ? "transparent"
-                                        : fill.value,
-                                  }}
-                                />
-                                <span>{fill.name}</span>
-                              </span>
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </div>
-
-                    <div className="space-y-1">
-                      <span className="font-medium text-[0.75rem] text-muted-foreground uppercase tracking-[0.14em]">
-                        Line
-                      </span>
-                      <Select
-                        value={selected.lineWidth}
-                        onValueChange={(lineWidth) =>
-                          patchSelected({
-                            lineWidth: lineWidth as TikzShape["lineWidth"],
-                          })
-                        }
-                      >
-                        <SelectTrigger
-                          size="sm"
-                          className="h-8 w-full text-xs"
-                          aria-label="Line width"
-                        >
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {TIKZ_LINE_WIDTHS.map((width) => (
-                            <SelectItem key={width} value={width}>
-                              {width}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </div>
-
-                    <div className="space-y-1">
-                      <span className="font-medium text-[0.75rem] text-muted-foreground uppercase tracking-[0.14em]">
-                        Dash
-                      </span>
-                      <Select
-                        value={selected.dash}
-                        onValueChange={(dash) =>
-                          patchSelected({ dash: dash as TikzShape["dash"] })
-                        }
-                      >
-                        <SelectTrigger
-                          size="sm"
-                          className="h-8 w-full text-xs"
-                          aria-label="Line dash"
-                        >
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {TIKZ_DASHES.map((dash) => (
-                            <SelectItem key={dash} value={dash}>
-                              {dash}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </div>
-                  </div>
-
-                  {selected.kind === "line" && (
-                    <div className="space-y-1">
-                      <span className="font-medium text-[0.75rem] text-muted-foreground uppercase tracking-[0.14em]">
-                        Arrow
-                      </span>
-                      <Select
-                        value={selected.arrow}
-                        onValueChange={(arrow) =>
-                          patchSelected({
-                            arrow: arrow as TikzShape["arrow"],
-                          })
-                        }
-                      >
-                        <SelectTrigger
-                          size="sm"
-                          className="h-8 w-full text-xs"
-                          aria-label="Arrow style"
-                        >
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {TIKZ_ARROWS.map((arrow) => (
-                            <SelectItem key={arrow.name} value={arrow.name}>
-                              {arrow.label}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </div>
-                  )}
-
-                  {selected.kind === "rectangle" && (
-                    <label className="flex items-center gap-2 text-xs">
-                      <input
-                        type="checkbox"
-                        checked={selected.rounded}
+                    {selected.kind === "text" ? (
+                      <Input
+                        ref={labelInputRef}
+                        value={selected.label ?? ""}
                         onChange={(event) =>
-                          patchSelected({ rounded: event.target.checked })
+                          patchSelected({ label: event.target.value })
                         }
-                        className="accent-primary"
+                        placeholder="Text or $math$"
+                        className="h-8 text-xs"
                       />
-                      Rounded corners
-                    </label>
-                  )}
-                </section>
-              ) : (
-                <div className="rounded-lg border border-dashed p-4 text-center">
-                  <MousePointer2Icon className="mx-auto mb-2 size-6 text-muted-foreground/50" />
-                  <p className="font-medium text-sm">No shape selected</p>
-                  <p className="mt-1 text-muted-foreground text-xs">
-                    Click any shape on the canvas to edit its label, coordinates, and style, or drag to draw a new one.
-                  </p>
-                </div>
-              )}
-
-              <section className="border-hairline border-t pt-4">
-                <h3 className="mb-2 font-medium text-[0.75rem] text-muted-foreground uppercase tracking-[0.16em]">
-                  Figure options
-                </h3>
-                <div className="grid grid-cols-2 gap-2">
-                  <NumberField
-                    label="Scale"
-                    value={figure.options.scale}
-                    step={0.1}
-                    min={0.5}
-                    max={2}
-                    onChange={(scale) =>
-                      patchOptions({ scale: clamp(scale, 0.5, 2) })
-                    }
-                  />
-                  <label className="flex items-end pb-1">
-                    <span className="flex items-center gap-2 text-xs">
-                      <input
-                        type="checkbox"
-                        checked={figure.options.wrapFigure}
+                    ) : (
+                      <Input
+                        ref={labelInputRef}
+                        value={selected.label ?? ""}
                         onChange={(event) =>
-                          patchOptions({ wrapFigure: event.target.checked })
+                          patchSelected({ label: event.target.value })
                         }
-                        className="accent-primary"
+                        placeholder="Label (LaTeX allowed)"
+                        className="h-8 text-xs"
                       />
-                      Figure env.
-                    </span>
-                  </label>
-                </div>
-                {figure.options.wrapFigure && (
-                  <div className="mt-2 space-y-2">
-                    <Input
-                      value={figure.options.caption}
-                      onChange={(event) =>
-                        patchOptions({ caption: event.target.value })
-                      }
-                      placeholder="Caption"
-                      className="h-8 text-xs"
-                    />
-                    <Input
-                      value={figure.options.label}
-                      onChange={(event) =>
-                        patchOptions({ label: event.target.value })
-                      }
-                      placeholder="fig:label"
-                      className="h-8 font-mono text-xs"
-                    />
+                    )}
+
+                    <div className="grid grid-cols-2 gap-2">
+                      <div className="space-y-1">
+                        <span className="font-medium text-[0.75rem] text-muted-foreground uppercase tracking-[0.14em]">
+                          Stroke
+                        </span>
+                        <Select
+                          value={selected.stroke}
+                          onValueChange={(stroke) => patchSelected({ stroke })}
+                        >
+                          <SelectTrigger
+                            size="sm"
+                            className="h-8 w-full text-xs"
+                            aria-label="Stroke color"
+                          >
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {TIKZ_COLORS.map((color) => (
+                              <SelectItem key={color.name} value={color.name}>
+                                <span className="flex items-center gap-2">
+                                  <span
+                                    className="size-2.5 shrink-0 rounded-full border border-black/15"
+                                    style={{ backgroundColor: color.value }}
+                                  />
+                                  <span>{color.name}</span>
+                                </span>
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
+
+                      <div className="space-y-1">
+                        <span className="font-medium text-[0.75rem] text-muted-foreground uppercase tracking-[0.14em]">
+                          Fill
+                        </span>
+                        <Select
+                          value={selected.fill}
+                          onValueChange={(fill) => patchSelected({ fill })}
+                        >
+                          <SelectTrigger
+                            size="sm"
+                            className="h-8 w-full text-xs"
+                            aria-label="Fill color"
+                          >
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {TIKZ_FILLS.map((fill) => (
+                              <SelectItem key={fill.name} value={fill.name}>
+                                <span className="flex items-center gap-2">
+                                  <span
+                                    className="size-2.5 shrink-0 rounded-full border border-black/15"
+                                    style={{
+                                      backgroundColor:
+                                        fill.value === "transparent"
+                                          ? "transparent"
+                                          : fill.value,
+                                    }}
+                                  />
+                                  <span>{fill.name}</span>
+                                </span>
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
+
+                      <div className="space-y-1">
+                        <span className="font-medium text-[0.75rem] text-muted-foreground uppercase tracking-[0.14em]">
+                          Line
+                        </span>
+                        <Select
+                          value={selected.lineWidth}
+                          onValueChange={(lineWidth) =>
+                            patchSelected({
+                              lineWidth: lineWidth as TikzShape["lineWidth"],
+                            })
+                          }
+                        >
+                          <SelectTrigger
+                            size="sm"
+                            className="h-8 w-full text-xs"
+                            aria-label="Line width"
+                          >
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {TIKZ_LINE_WIDTHS.map((width) => (
+                              <SelectItem key={width} value={width}>
+                                {width}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
+
+                      <div className="space-y-1">
+                        <span className="font-medium text-[0.75rem] text-muted-foreground uppercase tracking-[0.14em]">
+                          Dash
+                        </span>
+                        <Select
+                          value={selected.dash}
+                          onValueChange={(dash) =>
+                            patchSelected({ dash: dash as TikzShape["dash"] })
+                          }
+                        >
+                          <SelectTrigger
+                            size="sm"
+                            className="h-8 w-full text-xs"
+                            aria-label="Line dash"
+                          >
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {TIKZ_DASHES.map((dash) => (
+                              <SelectItem key={dash} value={dash}>
+                                {dash}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
+                    </div>
+
+                    {selected.kind === "line" && (
+                      <div className="space-y-1">
+                        <span className="font-medium text-[0.75rem] text-muted-foreground uppercase tracking-[0.14em]">
+                          Arrow
+                        </span>
+                        <Select
+                          value={selected.arrow}
+                          onValueChange={(arrow) =>
+                            patchSelected({
+                              arrow: arrow as TikzShape["arrow"],
+                            })
+                          }
+                        >
+                          <SelectTrigger
+                            size="sm"
+                            className="h-8 w-full text-xs"
+                            aria-label="Arrow style"
+                          >
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {TIKZ_ARROWS.map((arrow) => (
+                              <SelectItem key={arrow.name} value={arrow.name}>
+                                {arrow.label}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
+                    )}
+
+                    {selected.kind === "rectangle" && (
+                      <label className="flex items-center gap-2 text-xs">
+                        <input
+                          type="checkbox"
+                          checked={selected.rounded}
+                          onChange={(event) =>
+                            patchSelected({ rounded: event.target.checked })
+                          }
+                          className="accent-primary"
+                        />
+                        Rounded corners
+                      </label>
+                    )}
+                  </section>
+                ) : (
+                  <div className="rounded-lg border border-dashed p-4 text-center">
+                    <MousePointer2Icon className="mx-auto mb-2 size-6 text-muted-foreground/50" />
+                    <p className="font-medium text-sm">No shape selected</p>
+                    <p className="mt-1 text-muted-foreground text-xs">
+                      Click any shape on the canvas to edit its label,
+                      coordinates, and style, or drag to draw a new one.
+                    </p>
                   </div>
                 )}
-              </section>
-            </div>
+
+                <section className="border-hairline border-t pt-4">
+                  <h3 className="mb-2 font-medium text-[0.75rem] text-muted-foreground uppercase tracking-[0.16em]">
+                    Figure options
+                  </h3>
+                  <div className="grid grid-cols-2 gap-2">
+                    <NumberField
+                      label="Scale"
+                      value={figure.options.scale}
+                      step={0.1}
+                      min={0.5}
+                      max={2}
+                      onChange={(scale) =>
+                        patchOptions({ scale: clamp(scale, 0.5, 2) })
+                      }
+                    />
+                    <label className="flex items-end pb-1">
+                      <span className="flex items-center gap-2 text-xs">
+                        <input
+                          type="checkbox"
+                          checked={figure.options.wrapFigure}
+                          onChange={(event) =>
+                            patchOptions({ wrapFigure: event.target.checked })
+                          }
+                          className="accent-primary"
+                        />
+                        Figure env.
+                      </span>
+                    </label>
+                  </div>
+                  {figure.options.wrapFigure && (
+                    <div className="mt-2 space-y-2">
+                      <Input
+                        value={figure.options.caption}
+                        onChange={(event) =>
+                          patchOptions({ caption: event.target.value })
+                        }
+                        placeholder="Caption"
+                        className="h-8 text-xs"
+                      />
+                      <Input
+                        value={figure.options.label}
+                        onChange={(event) =>
+                          patchOptions({ label: event.target.value })
+                        }
+                        placeholder="fig:label"
+                        className="h-8 font-mono text-xs"
+                      />
+                    </div>
+                  )}
+                </section>
+              </div>
             )}
           </aside>
         </div>
 
         <SheetFooter className="flex h-14 shrink-0 flex-row items-center justify-between border-hairline border-t px-4 py-0">
-          <div className="min-w-0 text-xs text-muted-foreground">
+          <div className="min-w-0 text-muted-foreground text-xs">
             {editing ? (
               <span className="flex items-center gap-1.5">
                 <CheckIcon className="size-3.5 text-[#5db8a6]" />

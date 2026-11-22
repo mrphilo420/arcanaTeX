@@ -24,15 +24,37 @@ async function buildArchiveWithBsdtar(
       await writeFile(target, entry.content, "utf-8");
     }
     const outPath = join(dir, outName);
-    const res = spawnSync(
-      "bsdtar",
-      [...formatFlag, "-cf", outPath, "-C", srcDir, "."],
-      {
-        encoding: "utf-8",
-      },
-    );
-    if (res.status !== 0) {
-      throw new Error(`bsdtar failed: ${res.stderr}`);
+    if (formatFlag.includes("--format=zip")) {
+      const py = spawnSync(
+        "python3",
+        [
+          "-c",
+          `import os, sys, zipfile
+src, out = sys.argv[1], sys.argv[2]
+with zipfile.ZipFile(out, "w") as zf:
+  for root, _, files in os.walk(src):
+    for f in files:
+      full = os.path.join(root, f)
+      zf.write(full, os.path.relpath(full, src))`,
+          srcDir,
+          outPath,
+        ],
+        { encoding: "utf-8" },
+      );
+      if (py.status !== 0) {
+        throw new Error(`python3 zipfile failed: ${py.stderr}`);
+      }
+    } else {
+      const res = spawnSync(
+        "tar",
+        [...formatFlag, "-cf", outPath, "-C", srcDir, "."],
+        {
+          encoding: "utf-8",
+        },
+      );
+      if (res.status !== 0) {
+        throw new Error(`tar failed: ${res.stderr}`);
+      }
     }
     return await readFile(outPath);
   } finally {
