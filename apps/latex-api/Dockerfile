@@ -1,6 +1,6 @@
 FROM node:22-slim AS base
 
-RUN corepack enable pnpm
+RUN corepack enable pnpm && corepack prepare pnpm@10.28.2 --activate
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
     texlive \
