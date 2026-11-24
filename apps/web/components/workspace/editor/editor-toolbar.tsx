@@ -102,7 +102,9 @@ function PrecisionLintMenu({
 }) {
   const activeFileId = useDocumentStore((s) => s.activeFileId);
   const activeFileName = useDocumentStore(
-    (s) => s.files.find((item) => item.id === s.activeFileId)?.name ?? "document.tex",
+    (s) =>
+      s.files.find((item) => item.id === s.activeFileId)?.name ??
+      "document.tex",
   );
   const isDocFile = useDocumentStore((s) => {
     const file = s.files.find((item) => item.id === s.activeFileId);

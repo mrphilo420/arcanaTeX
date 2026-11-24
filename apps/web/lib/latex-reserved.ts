@@ -187,8 +187,8 @@ function escapeInTypewriterGroup(
 
   let result = content;
   for (const index of targets.reverse()) {
-    const escape = masked[index] === "_" ? "\\_" : "\\textasciicircum{}";
-    result = result.slice(0, index) + escape + result.slice(index + 1);
+    const escaped = masked[index] === "_" ? "\\_" : "\\textasciicircum{}";
+    result = result.slice(0, index) + escaped + result.slice(index + 1);
   }
   return { ok: true, content: result };
 }

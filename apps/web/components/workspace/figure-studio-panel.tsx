@@ -78,47 +78,47 @@ const QUICK_RESEARCH_EXAMPLES: Array<{
   paletteId: FigurePaletteId;
   engine: CodeLanguage | "auto";
 }> = [
-    {
-      id: "spectral-convergence",
-      label: "Spectral Convergence",
-      badge: "Log–Log Decay",
-      prompt:
-        "Log-log spectral convergence error decay vs mesh DOF N comparing Chebyshev spectral, Preconditioned CG, and Finite Difference solvers",
-      presetId: "nature-single",
-      paletteId: "okabe-ito",
-      engine: "python",
-    },
-    {
-      id: "causal-dag",
-      label: "Architecture DAG",
-      badge: "Sugiyama Layout",
-      prompt:
-        "Causal architecture flowchart: Raw Telemetry -> Spectral Encoder -> Koopman Latent -> Lyapunov Verifier -> Control Policy",
-      presetId: "ieee-double",
-      paletteId: "okabe-ito",
-      engine: "python",
-    },
-    {
-      id: "solver-benchmark",
-      label: "Grouped Benchmark",
-      badge: "95% CI Bars",
-      prompt:
-        "Grouped benchmark bar chart comparing Dense Direct, Sparse Krylov, and Proposed Multigrid throughput with 95% CI error bars",
-      presetId: "elsevier-single",
-      paletteId: "tol-muted",
-      engine: "python",
-    },
-    {
-      id: "posterior-violin",
-      label: "Posterior Violin (R)",
-      badge: "ggplot2 Violin",
-      prompt:
-        "Violin and quantile boxplot distribution of posterior log-likelihood across HMC-NUTS, Langevin, SVGD, and Variational samplers in R",
-      presetId: "ams-siam",
-      paletteId: "okabe-ito",
-      engine: "r",
-    },
-  ];
+  {
+    id: "spectral-convergence",
+    label: "Spectral Convergence",
+    badge: "Log–Log Decay",
+    prompt:
+      "Log-log spectral convergence error decay vs mesh DOF N comparing Chebyshev spectral, Preconditioned CG, and Finite Difference solvers",
+    presetId: "nature-single",
+    paletteId: "okabe-ito",
+    engine: "python",
+  },
+  {
+    id: "causal-dag",
+    label: "Architecture DAG",
+    badge: "Sugiyama Layout",
+    prompt:
+      "Causal architecture flowchart: Raw Telemetry -> Spectral Encoder -> Koopman Latent -> Lyapunov Verifier -> Control Policy",
+    presetId: "ieee-double",
+    paletteId: "okabe-ito",
+    engine: "python",
+  },
+  {
+    id: "solver-benchmark",
+    label: "Grouped Benchmark",
+    badge: "95% CI Bars",
+    prompt:
+      "Grouped benchmark bar chart comparing Dense Direct, Sparse Krylov, and Proposed Multigrid throughput with 95% CI error bars",
+    presetId: "elsevier-single",
+    paletteId: "tol-muted",
+    engine: "python",
+  },
+  {
+    id: "posterior-violin",
+    label: "Posterior Violin (R)",
+    badge: "ggplot2 Violin",
+    prompt:
+      "Violin and quantile boxplot distribution of posterior log-likelihood across HMC-NUTS, Langevin, SVGD, and Variational samplers in R",
+    presetId: "ams-siam",
+    paletteId: "okabe-ito",
+    engine: "r",
+  },
+];
 
 export function FigureStudioPanel({
   open,
@@ -199,7 +199,7 @@ export function FigureStudioPanel({
       .then((data: CodeRuntimesProbe | null) => {
         if (!cancelled && data) setRuntimes(data);
       })
-      .catch(() => { });
+      .catch(() => {});
     return () => {
       cancelled = true;
     };

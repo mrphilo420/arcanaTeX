@@ -503,9 +503,9 @@ export async function probeCodeRuntimes(options?: {
         const [version, pkgCsv] = line.split("|");
         const packages = pkgCsv
           ? pkgCsv
-            .split(",")
-            .map((item) => item.trim())
-            .filter(Boolean)
+              .split(",")
+              .map((item) => item.trim())
+              .filter(Boolean)
           : [];
         return {
           available: true,
@@ -523,7 +523,7 @@ export async function probeCodeRuntimes(options?: {
     cachedProbe = { at: Date.now(), value };
     return value;
   } finally {
-    await rm(probeRoot, { recursive: true, force: true }).catch(() => { });
+    await rm(probeRoot, { recursive: true, force: true }).catch(() => {});
   }
 }
 
@@ -637,6 +637,6 @@ export async function runLocalCode(input: {
         : "No OS sandbox is available on this platform. Code ran in an isolated temporary directory with a timeout, but without network isolation. Set ALLOW_UNSANDBOXED_CODE_EXECUTION=true only when you trust the code.",
     };
   } finally {
-    await rm(root, { recursive: true, force: true }).catch(() => { });
+    await rm(root, { recursive: true, force: true }).catch(() => {});
   }
 }

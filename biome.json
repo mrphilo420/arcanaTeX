@@ -151,7 +151,8 @@
       "!**/.next-recovery",
       "!**/.vercel",
       "!**/out",
-      "!**/next-env.d.ts"
+      "!**/next-env.d.ts",
+      "!assets"
     ]
   }
 }
