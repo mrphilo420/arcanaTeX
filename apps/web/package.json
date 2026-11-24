@@ -1,6 +1,6 @@
 {
   "name": "@open-prism/web",
-  "version": "0.0.1",
+  "version": "1.0.0",
   "private": true,
   "description": "arcanaTeX: local-first LaTeX and Lean workspace",
   "homepage": "https://github.com/mrphilo420/arcanaTeX",

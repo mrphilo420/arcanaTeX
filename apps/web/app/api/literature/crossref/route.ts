@@ -54,7 +54,7 @@ async function queryCrossref(
 
   const response = await fetch(url, {
     headers: {
-      "User-Agent": "arcanaTeX/0.0.1 (mailto:support@arcanatex.org)",
+      "User-Agent": "arcanaTeX/1.0.0 (mailto:support@arcanatex.org)",
     },
     signal: AbortSignal.timeout(10_000),
     next: { revalidate: 300 },

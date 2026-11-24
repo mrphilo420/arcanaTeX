@@ -61,6 +61,7 @@ import {
   setEditorDiagnostics,
 } from "@/lib/editor-diagnostics";
 import { buildEditorTheme, getTerminalTheme } from "@/lib/editor-theme";
+import { EditorMinimap } from "./editor-minimap";
 import { EditorToolbar } from "./editor-toolbar";
 import type { LatexInsertion } from "../tikz-latex-ribbon";
 import { AIDrawer, ChatPanel } from "./ai-drawer";
@@ -356,6 +357,7 @@ export function LatexEditor() {
   const agentChanges = useAgentChangesStore((s) => s.changes);
   const stopReview = useAgentChangesStore((s) => s.stopReview);
   const markdownPreviewEnabled = useDevFeatureFlag("markdownPreview");
+  const showMinimap = useEditorPreferencesStore((state) => state.showMinimap);
   const terminalThemeId = useEditorPreferencesStore(
     (state) => state.terminalThemeId,
   );
@@ -371,10 +373,11 @@ export function LatexEditor() {
     () => buildEditorTheme(editorThemeId),
     [editorThemeId],
   );
-  const editorColors = useMemo(
-    () => getTerminalTheme(editorThemeId).colors,
+  const resolvedTerminalTheme = useMemo(
+    () => getTerminalTheme(editorThemeId),
     [editorThemeId],
   );
+  const editorColors = resolvedTerminalTheme.colors;
 
   const isTexFile = activeFile?.type === "tex";
   const activeKind = activeFile ? fileKindForFile(activeFile) : "other";
@@ -456,6 +459,8 @@ export function LatexEditor() {
 
   const [imageScale, setImageScale] = useState(0.5);
   const [currentLine, setCurrentLine] = useState(1);
+  const [cursorLine, setCursorLine] = useState(1);
+  const [editorView, setEditorView] = useState<EditorView | null>(null);
   const [selectionChat, setSelectionChat] =
     useState<SelectionChatTarget | null>(null);
   const [contextMenu, setContextMenu] = useState<EditorContextMenuState | null>(
@@ -695,28 +700,31 @@ export function LatexEditor() {
       if (update.docChanged && !isSyncTransaction) {
         setContent(update.state.doc.toString());
       }
-      if (update.selectionSet) {
+      if (update.selectionSet || update.docChanged) {
         const { from, to, head } = update.state.selection.main;
-        setCursorPosition(head);
-        if (from !== to) {
-          setSelectionRange({ start: from, end: to });
-          const selected = update.state.sliceDoc(from, to);
-          const coords =
-            update.view.coordsAtPos(to) ?? update.view.coordsAtPos(from);
-          if (selected.trim() && coords) {
-            setSelectionChat({
-              text: selected,
-              startLine: update.state.doc.lineAt(from).number,
-              endLine: update.state.doc.lineAt(Math.max(from, to - 1)).number,
-              top: coords.bottom + 8,
-              left: coords.left,
-            });
+        setCursorLine(update.state.doc.lineAt(head).number);
+        if (update.selectionSet) {
+          setCursorPosition(head);
+          if (from !== to) {
+            setSelectionRange({ start: from, end: to });
+            const selected = update.state.sliceDoc(from, to);
+            const coords =
+              update.view.coordsAtPos(to) ?? update.view.coordsAtPos(from);
+            if (selected.trim() && coords) {
+              setSelectionChat({
+                text: selected,
+                startLine: update.state.doc.lineAt(from).number,
+                endLine: update.state.doc.lineAt(Math.max(from, to - 1)).number,
+                top: coords.bottom + 8,
+                left: coords.left,
+              });
+            } else {
+              setSelectionChat(null);
+            }
           } else {
+            setSelectionRange(null);
             setSelectionChat(null);
           }
-        } else {
-          setSelectionRange(null);
-          setSelectionChat(null);
         }
       }
 
@@ -869,12 +877,16 @@ export function LatexEditor() {
       state,
       parent: containerRef.current,
     });
+    view.scrollDOM.id = "latex-editor-scroller";
 
     viewRef.current = view;
+    setEditorView(view);
+    setCursorLine(1);
 
     return () => {
       view.destroy();
       viewRef.current = null;
+      setEditorView(null);
     };
   }, [
     activeFileId,
@@ -1048,95 +1060,114 @@ export function LatexEditor() {
       <ChatDock>
         <div
           className={cn(
-            "absolute inset-0",
+            "absolute inset-0 flex",
             isMarkdown && markdownPreview && markdownPreviewEnabled && "hidden",
           )}
         >
-          {stickyLines.length > 0 && (
-            <div
-              className="absolute inset-x-0 top-0 z-10 border-b font-mono text-[1rem] leading-[1.4] shadow-md"
-              style={{
-                backgroundColor: editorColors.background,
-                borderBottomColor: editorColors.border,
-                color: editorColors.foreground,
-              }}
-            >
-              {stickyLines.map((section) => (
-                <div
-                  key={section.line}
-                  className="flex cursor-pointer items-center hover:bg-white/5"
-                  onClick={() => {
-                    const view = viewRef.current;
-                    if (!view) return;
-                    const line = view.state.doc.line(section.line);
-                    view.dispatch({
-                      selection: { anchor: line.from },
-                      effects: EditorView.scrollIntoView(line.from, {
-                        y: "start",
-                      }),
-                    });
-                    view.focus();
-                  }}
-                >
-                  <span
-                    className="shrink-0 py-px text-right"
-                    style={{
-                      width: gutterWidth ? gutterWidth - 8 : 32,
-                      backgroundColor: editorColors.background,
-                      color: editorColors.gutter,
+          <div className="relative min-w-0 flex-1">
+            {stickyLines.length > 0 && (
+              <div
+                className="absolute inset-x-0 top-0 z-10 border-b font-mono text-[1rem] leading-[1.4] shadow-md"
+                style={{
+                  backgroundColor: editorColors.background,
+                  borderBottomColor: editorColors.border,
+                  color: editorColors.foreground,
+                }}
+              >
+                {stickyLines.map((section) => (
+                  <div
+                    key={section.line}
+                    className="flex cursor-pointer items-center hover:bg-white/5"
+                    onClick={() => {
+                      const view = viewRef.current;
+                      if (!view) return;
+                      const line = view.state.doc.line(section.line);
+                      view.dispatch({
+                        selection: { anchor: line.from },
+                        effects: EditorView.scrollIntoView(line.from, {
+                          y: "start",
+                        }),
+                      });
+                      view.focus();
                     }}
                   >
-                    {section.line}
-                  </span>
-                  {section.html ? (
                     <span
-                      className="py-px pl-5.5"
-                      dangerouslySetInnerHTML={{ __html: section.html }}
-                    />
-                  ) : (
-                    <span
-                      className="py-px pl-5.5"
-                      style={{ color: editorColors.comment }}
+                      className="shrink-0 py-px text-right"
+                      style={{
+                        width: gutterWidth ? gutterWidth - 8 : 32,
+                        backgroundColor: editorColors.background,
+                        color: editorColors.gutter,
+                      }}
                     >
-                      {section.content}
+                      {section.line}
                     </span>
-                  )}
-                </div>
-              ))}
-            </div>
-          )}
-          <div
-            ref={containerRef}
-            className="absolute inset-0"
-            onContextMenu={(event) => {
-              event.preventDefault();
-              const view = viewRef.current;
-              if (!view) return;
-              const { from, to } = view.state.selection.main;
-              let targetPos = from;
-              if (from === to) {
-                const coordsPos = view.posAtCoords({
+                    {section.html ? (
+                      <span
+                        className="py-px pl-5.5"
+                        dangerouslySetInnerHTML={{ __html: section.html }}
+                      />
+                    ) : (
+                      <span
+                        className="py-px pl-5.5"
+                        style={{ color: editorColors.comment }}
+                      >
+                        {section.content}
+                      </span>
+                    )}
+                  </div>
+                ))}
+              </div>
+            )}
+            <div
+              ref={containerRef}
+              className="absolute inset-0"
+              onContextMenu={(event) => {
+                event.preventDefault();
+                const view = viewRef.current;
+                if (!view) return;
+                const { from, to } = view.state.selection.main;
+                let targetPos = from;
+                if (from === to) {
+                  const coordsPos = view.posAtCoords({
+                    x: event.clientX,
+                    y: event.clientY,
+                  });
+                  if (coordsPos !== null) {
+                    targetPos = coordsPos;
+                    view.dispatch({ selection: { anchor: coordsPos } });
+                    setCursorPosition(coordsPos);
+                  }
+                }
+                const docText = view.state.doc.toString();
+                const isTikzBlock =
+                  isLatex && findTikzBlock(docText, targetPos) !== null;
+                setContextMenu({
                   x: event.clientX,
                   y: event.clientY,
+                  hasSelection: from !== to,
+                  isTex: isLatex,
+                  isTikzBlock,
                 });
-                if (coordsPos !== null) {
-                  targetPos = coordsPos;
-                  view.dispatch({ selection: { anchor: coordsPos } });
-                  setCursorPosition(coordsPos);
-                }
+              }}
+            />
+          </div>
+          {showMinimap && (
+            <EditorMinimap
+              editorView={editorView}
+              content={activeFileContent ?? ""}
+              fileKind={
+                activeKind === "latex" ||
+                activeKind === "markdown" ||
+                activeKind === "lean"
+                  ? activeKind
+                  : "other"
               }
-              const docText = view.state.doc.toString();
-              const isTikzBlock =
-                isLatex && findTikzBlock(docText, targetPos) !== null;
-              setContextMenu({
-                x: event.clientX,
-                y: event.clientY,
-                hasSelection: from !== to,
-                isTex: isLatex,
-                isTikzBlock,
-              });
-            }}
-          />
+              cursorLine={cursorLine}
+              diagnostics={activeFileMarks}
+              colors={editorColors}
+              dark={resolvedTerminalTheme.dark}
+            />
+          )}
         </div>
         {isMarkdown && markdownPreview && markdownPreviewEnabled && (
           <MarkdownPreview content={activeFileContent ?? ""} />

@@ -1126,9 +1126,6 @@ export function HomePage() {
                   <span className="font-semibold text-[1rem] tracking-[-0.015em]">
                     arcanaTeX
                   </span>
-                  <span className="rounded border border-hairline px-1 py-0.5 font-mono text-[0.625rem] text-muted-foreground">
-                    BETA
-                  </span>
                 </span>
                 <span className="mt-0.5 block font-medium text-[0.75rem] text-muted-foreground uppercase tracking-[0.16em]">
                   Local workspace

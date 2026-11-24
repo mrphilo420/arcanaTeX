@@ -25,6 +25,7 @@ const FONT_STORAGE_KEY = "open-prism:font-pairing";
 const TEXT_SCALE_STORAGE_KEY = "open-prism:text-scale";
 const MONO_FONT_STORAGE_KEY = "open-prism:mono-font";
 const ZEN_MODE_STORAGE_KEY = "open-prism:zen-mode";
+const MINIMAP_STORAGE_KEY = "open-prism:minimap";
 
 function isTerminalThemeId(value: string): value is TerminalThemeId {
   return TERMINAL_THEMES.some((theme) => theme.id === value);
@@ -87,6 +88,15 @@ function readStoredZenMode(): boolean {
   }
 }
 
+function readStoredMinimap(): boolean {
+  if (typeof window === "undefined") return true;
+  try {
+    return window.localStorage.getItem(MINIMAP_STORAGE_KEY) !== "0";
+  } catch {
+    return true;
+  }
+}
+
 interface EditorPreferencesState {
   terminalThemeId: TerminalThemeId;
   fontPairingId: FontPairingId;
@@ -94,6 +104,7 @@ interface EditorPreferencesState {
   monoFontId: MonoFontId;
   isAppearanceOpen: boolean;
   isZenMode: boolean;
+  showMinimap: boolean;
   setTerminalThemeId: (id: TerminalThemeId) => void;
   setFontPairingId: (id: FontPairingId) => void;
   setTextScaleId: (id: TextScaleId) => void;
@@ -101,6 +112,8 @@ interface EditorPreferencesState {
   setAppearanceOpen: (open: boolean) => void;
   setZenMode: (enabled: boolean) => void;
   toggleZenMode: () => void;
+  setShowMinimap: (enabled: boolean) => void;
+  toggleMinimap: () => void;
   resetAppearance: () => void;
   hydrate: () => void;
 }
@@ -113,6 +126,7 @@ export const useEditorPreferencesStore = create<EditorPreferencesState>()(
     monoFontId: DEFAULT_MONO_FONT_ID,
     isAppearanceOpen: false,
     isZenMode: false,
+    showMinimap: true,
     setTerminalThemeId: (terminalThemeId) => {
       if (typeof window !== "undefined") {
         try {
@@ -170,6 +184,30 @@ export const useEditorPreferencesStore = create<EditorPreferencesState>()(
         }
         return { isZenMode };
       }),
+    setShowMinimap: (showMinimap) => {
+      if (typeof window !== "undefined") {
+        try {
+          window.localStorage.setItem(
+            MINIMAP_STORAGE_KEY,
+            showMinimap ? "1" : "0",
+          );
+        } catch {}
+      }
+      set({ showMinimap });
+    },
+    toggleMinimap: () =>
+      set((state) => {
+        const showMinimap = !state.showMinimap;
+        if (typeof window !== "undefined") {
+          try {
+            window.localStorage.setItem(
+              MINIMAP_STORAGE_KEY,
+              showMinimap ? "1" : "0",
+            );
+          } catch {}
+        }
+        return { showMinimap };
+      }),
     resetAppearance: () => {
       if (typeof window !== "undefined") {
         try {
@@ -187,6 +225,7 @@ export const useEditorPreferencesStore = create<EditorPreferencesState>()(
             DEFAULT_MONO_FONT_ID,
           );
           window.localStorage.setItem(ZEN_MODE_STORAGE_KEY, "0");
+          window.localStorage.setItem(MINIMAP_STORAGE_KEY, "1");
         } catch {}
       }
       set({
@@ -195,6 +234,7 @@ export const useEditorPreferencesStore = create<EditorPreferencesState>()(
         textScaleId: DEFAULT_TEXT_SCALE_ID,
         monoFontId: DEFAULT_MONO_FONT_ID,
         isZenMode: false,
+        showMinimap: true,
       });
     },
     hydrate: () =>
@@ -204,6 +244,7 @@ export const useEditorPreferencesStore = create<EditorPreferencesState>()(
         textScaleId: readStoredTextScale(),
         monoFontId: readStoredMonoFont(),
         isZenMode: readStoredZenMode(),
+        showMinimap: readStoredMinimap(),
       }),
   }),
 );

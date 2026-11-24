@@ -20,6 +20,7 @@ import {
   KeyboardIcon,
   ListIcon,
   LoaderIcon,
+  MapIcon,
   MinusIcon,
   PaletteIcon,
   PencilIcon,
@@ -65,6 +66,27 @@ import { isLatexDocumentFile } from "@/lib/project-files";
 import { cn } from "@/lib/utils";
 import { useDocumentStore } from "@/stores/document-store";
 import { useEditorPreferencesStore } from "@/stores/editor-preferences-store";
+
+function ToolbarMinimapButton({ className }: { className?: string }) {
+  const showMinimap = useEditorPreferencesStore((s) => s.showMinimap);
+  const toggleMinimap = useEditorPreferencesStore((s) => s.toggleMinimap);
+
+  return (
+    <TooltipIconButton
+      tooltip={showMinimap ? "Hide minimap" : "Show minimap"}
+      onClick={toggleMinimap}
+      className={cn(
+        "hidden size-7 sm:inline-flex",
+        showMinimap && "bg-accent text-foreground",
+        className,
+      )}
+      aria-label={showMinimap ? "Hide minimap" : "Show minimap"}
+      aria-pressed={showMinimap}
+    >
+      <MapIcon className="size-3.5" />
+    </TooltipIconButton>
+  );
+}
 
 function ToolbarAppearanceButton({ className }: { className?: string }) {
   const themeId = useEditorPreferencesStore((s) => s.terminalThemeId);
@@ -538,6 +560,9 @@ export function EditorToolbar({
               {markdownPreview ? "Edit" : "Preview"}
             </Button>
           )}
+          {!(markdownPreviewAvailable && markdownPreview) && (
+            <ToolbarMinimapButton />
+          )}
           <ToolbarAppearanceButton />
         </div>
       </div>
@@ -555,6 +580,7 @@ export function EditorToolbar({
           Lean 4
         </span>
         <div className="ml-auto flex items-center gap-1">
+          <ToolbarMinimapButton />
           <ToolbarAppearanceButton />
         </div>
       </div>
@@ -683,6 +709,7 @@ export function EditorToolbar({
       </TooltipIconButton>
       <PrecisionLintMenu editorView={editorView} />
       <div className="ml-auto flex items-center gap-1">
+        <ToolbarMinimapButton />
         <ToolbarAppearanceButton />
       </div>
     </div>

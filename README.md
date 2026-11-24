@@ -2,16 +2,19 @@
 
 **A browser-based LaTeX and Lean workspace with optional AI assistance.**
 
+**Stable release: v1.0.0** ·
+[Release notes](https://github.com/mrphilo420/arcanaTeX/releases/tag/v1.0.0)
+
 Edit multi-file LaTeX projects, compile PDFs, and use optional tools for writing,
 review, Lean, figures, and presentations. Projects are stored in browser
 IndexedDB. Compilation and model calls use services you configure.
 
 <p align="center">
-  <img src="./assets/screenshots/workspace.png" alt="arcanaTeX workspace with LaTeX source, live PDF preview, and research tools" width="100%" />
+  <img src="./assets/screenshots/workspace.png" alt="arcanaTeX v1 LaTeX editor with a syntax-aware code minimap" width="100%" />
 </p>
 
 <p align="center">
-  <sub>Edit LaTeX, compile, and review the PDF and diagnostics in one workspace.</sub>
+  <sub>Edit LaTeX and navigate long documents with the syntax-aware code minimap.</sub>
 </p>
 
 ## Screenshots
@@ -27,6 +30,8 @@ IndexedDB. Compilation and model calls use services you configure.
 - Multi-file LaTeX editing with autosave, live PDF preview, diagnostics, and
   support for pdfLaTeX, XeLaTeX, LuaLaTeX, and Tectonic. See
   [compiler notes](./docs/compiler-best-practices.md).
+- Syntax-aware editor minimap with a draggable viewport, cursor tracking, and
+  diagnostic markers for LaTeX, Markdown, and Lean files.
 - Import archives or folders; organize projects and save local versions.
 - Optional AI tools for editing, BibTeX cleanup, paper review, and Lean source
   analysis. Model providers are configurable; see [provider setup](./docs/llm-providers.md).

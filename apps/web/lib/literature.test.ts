@@ -242,7 +242,7 @@ describe("Literature API routes", () => {
       expect.stringContaining("filter=prefix%3A10.1109"),
       expect.objectContaining({
         headers: {
-          "User-Agent": "arcanaTeX/0.0.1 (mailto:support@arcanatex.org)",
+          "User-Agent": "arcanaTeX/1.0.0 (mailto:support@arcanatex.org)",
         },
       }),
     );

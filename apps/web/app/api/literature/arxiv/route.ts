@@ -182,7 +182,7 @@ export async function GET(request: Request) {
   try {
     const response = await fetch(url, {
       headers: {
-        "User-Agent": "arcanaTeX/0.0.1 (local LaTeX workspace)",
+        "User-Agent": "arcanaTeX/1.0.0 (local LaTeX workspace)",
       },
       next: { revalidate: 600 },
     });
